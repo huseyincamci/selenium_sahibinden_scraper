@@ -79,6 +79,14 @@ try:
     # Excel dosyasını tarih ve saat bilgisiyle kaydedelim
     file_name = f"sahibinden_verileri_{current_time}.xlsx"
     wb.save(file_name)
+    
+except Exception as e:
+    # Hata olduğunda ekran görüntüsü al
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    filename = f"screenshot_{timestamp}.png"
+    driver.save_screenshot(filename)
+    print(f"Test failed, screenshot saved as {filename}")
+    print(f"Error: {e}")
 
 finally:
     # Tarayıcıyı kapat
