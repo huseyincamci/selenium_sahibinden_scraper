@@ -82,4 +82,9 @@ try:
 
 finally:
     # Tarayıcıyı kapat
+    current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
+    # Excel dosyasını tarih ve saat bilgisiyle kaydedelim
+    screenshot_file_name = f"screenshot_{current_time}.png"
+    driver.save_screenshot(screenshot_file_name)
     driver.quit()

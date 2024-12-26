@@ -40,6 +40,12 @@ jobs:
         run: |
           python main.py
 
+      - name: Upload screenshot as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: screenshot
+          path: ./screenshot_*.png  
+
       - name: Configure Git with secrets
         run: |
           git config --global user.name "${{ secrets.USER_NAME }}"
