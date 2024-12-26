@@ -4,6 +4,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 import openpyxl
+import os
 from datetime import datetime
 
 # Tarayıcıyı başlatma
@@ -26,7 +27,6 @@ driver.implicitly_wait(60)  # 10 saniye bekle
 try:
     # Sahibinden.com'u aç
     driver.get("https://www.sahibinden.com")
-    print(driver.page_source)
 
     # Toplam emlak sayısını al
     emlak_sayisi = driver.find_element(By.XPATH, '//*[@id="container"]/div[3]/div/aside/div[1]/nav/ul[5]/li[1]/span').text
@@ -57,28 +57,55 @@ try:
     print(f"Satılık konut sayısı: {satilik_sayisi}")
 
 
-    wb = openpyxl.Workbook()
-    sheet = wb.active
-    sheet.title = "Sahibinden Verileri"
+    # Excel dosyasının adı
+    file_name = "sahibinden_verileri.xlsx"
+    folder_path = os.path.dirname(os.path.abspath(__file__))  # Çalışan programın bulunduğu klasör
+    full_path = os.path.join(folder_path, file_name)  # Tam dosya yolu
 
-    sheet['A1'] = "Emlak Sayısı"
-    sheet['B1'] = "Konut Sayısı"
-    sheet['C1'] = "Arsa Sayısı"
-    sheet['D1'] = "Kiralık Konut Sayısı"
-    sheet['E1'] = "Satılık Konut Sayısı"
+    # Excel dosyası mevcut mu kontrol et
+    if os.path.exists(full_path):
+        # Dosya varsa aç
+        wb = openpyxl.load_workbook(full_path)
+        sheet = wb.active
+    else:
+        # Dosya yoksa oluştur
+        wb = openpyxl.Workbook()
+        sheet = wb.active
+        sheet.title = "Sahibinden Verileri"
 
-    sheet['A2'] = emlak_sayisi.strip('()')
-    sheet['B2'] = konut_sayisi.strip('()')
-    sheet['C2'] = arsa_sayisi.strip('()')
-    sheet['D2'] = kiralik_sayisi.strip('()')
-    sheet['E2'] = satilik_sayisi.strip('()')
+        # Başlıkları ekle
+        sheet['A1'] = "Tarih"
+        sheet['B1'] = "Emlak Sayısı"
+        sheet['C1'] = "Konut Sayısı"
+        sheet['D1'] = "Arsa Sayısı"
+        sheet['E1'] = "Kiralık Konut Sayısı"
+        sheet['F1'] = "Satılık Konut Sayısı"
 
-    # Şu anki tarihi ve saati alalım
-    current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        # Başlık genişliklerini ayarla
+        sheet.column_dimensions['A'].width = 20
+        sheet.column_dimensions['B'].width = 15
+        sheet.column_dimensions['C'].width = 15
+        sheet.column_dimensions['D'].width = 15
+        sheet.column_dimensions['E'].width = 20
+        sheet.column_dimensions['F'].width = 20
 
-    # Excel dosyasını tarih ve saat bilgisiyle kaydedelim
-    file_name = f"sahibinden_verileri_{current_time}.xlsx"
-    wb.save(file_name)
+    # Son satırın altına ekle
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Tarih ve saat
+
+    new_row = [
+        current_time,
+        emlak_sayisi.strip('()'),
+        konut_sayisi.strip('()'),
+        arsa_sayisi.strip('()'),
+        kiralik_sayisi.strip('()'),
+        satilik_sayisi.strip('()')
+    ]
+
+    sheet.append(new_row)
+
+    # Dosyayı kaydet
+    wb.save(full_path)
+    print(f"Veriler {full_path} dosyasına eklendi.")
 
 except Exception as e:
     # Hata olduğunda ekran görüntüsü al
@@ -91,8 +118,8 @@ except Exception as e:
 finally:
     # Tarayıcıyı kapat
     current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-
-    # Excel dosyasını tarih ve saat bilgisiyle kaydedelim
     screenshot_file_name = f"screenshot_{current_time}.png"
-    driver.save_screenshot(screenshot_file_name)
+    folder_path = os.path.dirname(os.path.abspath(__file__))  # Çalışan programın bulunduğu klasör
+    full_path = os.path.join(folder_path, screenshot_file_name)  # Tam dosya yolu
+    #driver.save_screenshot(full_path)
     driver.quit()
