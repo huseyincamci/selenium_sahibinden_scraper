@@ -1,0 +1,45 @@
+name: Selenium Test Workflow
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  selenium-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Set up Chrome and ChromeDriver
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: 'latest'
+          driver-version: 'latest'
+
+      - name: Run Selenium script
+        run: |
+          python main.py
+
+      - name: Configure Git with secrets
+        run: |
+          git config --global user.name "${{ secrets.USER_NAME }}"
+          git config --global user.email "${{ secrets.USER_EMAIL }}"
+
+      - name: Commit Excel file to repository
+        run: |
+          git add *.xlsx
+          git commit -m "Add Excel report"
+          git push
