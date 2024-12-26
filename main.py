@@ -26,6 +26,7 @@ driver.implicitly_wait(60)  # 10 saniye bekle
 try:
     # Sahibinden.com'u aç
     driver.get("https://www.sahibinden.com")
+    print(driver.page_source)
 
     # Toplam emlak sayısını al
     emlak_sayisi = driver.find_element(By.XPATH, '//*[@id="container"]/div[3]/div/aside/div[1]/nav/ul[5]/li[1]/span').text
